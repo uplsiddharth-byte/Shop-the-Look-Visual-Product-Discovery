@@ -167,8 +167,7 @@ def info():
 
 @app.get("/api/samples")
 def samples():
-    sc = sorted({json.loads(l)["scene"] for l in open(f"{ROOT}/dataset/validation.jsonl")})
-    return [f"/scenes/{s}.jpg" for s in sc[:12]]
+    return [f"/scenes/{f}" for f in sorted(os.listdir(f"{ROOT}/data/scenes")) if f.endswith(".jpg")][:12]  # data/scenes = the validation scenes
 
 
 app.mount("/catalog", StaticFiles(directory=f"{ROOT}/data/catalog"), name="catalog")
