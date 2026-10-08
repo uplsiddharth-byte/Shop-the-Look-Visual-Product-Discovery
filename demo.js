@@ -19,7 +19,7 @@
     const n = document.createElement("div");
     n.setAttribute("role", "note");
     n.style.cssText = "font:500 13px/1.4 system-ui,sans-serif;padding:8px 16px;text-align:center;background:#111;color:#fff";
-    n.innerHTML = 'Static demo: the six sample photos use results recorded from the real app. Your own photos need the backend. <a style="color:#fff" href="https://github.com/uplsiddharth-byte/Shop-the-Look-Visual-Product-Discovery">Source, setup and technical document</a>. Photos belong to their owners and are shown only to demonstrate the software.';
+    n.innerHTML = 'Static demo: the six sample photos use results recorded from the real app. Your own photos need the backend: <a style="color:#fff" href="live.html">open the live app</a> (online only while its owner's computer is on). <a style="color:#fff" href="https://github.com/uplsiddharth-byte/Shop-the-Look-Visual-Product-Discovery">Source, setup and technical document</a>. Photos belong to their owners and are shown only to demonstrate the software.';
     document.body.prepend(n);
   });
 })();
