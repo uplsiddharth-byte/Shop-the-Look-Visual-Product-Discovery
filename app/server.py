@@ -2,7 +2,7 @@
 import asyncio, collections, io, json, os, time, numpy as np
 from PIL import Image, ImageOps, UnidentifiedImageError
 from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
-from fastapi.responses import Response
+from fastapi.responses import JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pipeline import Pipeline, analyze, ROOT
 from families import ext_family_matrix
@@ -156,7 +156,8 @@ def favicon():
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok", "products": len(P.ids), "device": DEVICE}
+    # readable from other origins (the GitHub Pages live.html checks it); it exposes no data
+    return JSONResponse({"status": "ok", "products": len(P.ids), "device": DEVICE}, headers={"Access-Control-Allow-Origin": "*"})
 
 
 @app.get("/api/info")

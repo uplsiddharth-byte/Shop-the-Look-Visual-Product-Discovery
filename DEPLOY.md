@@ -61,5 +61,16 @@ GitHub Pages cannot run the models, so a live app needs a server. Two ways, both
   ```
   The Space downloads the data (about 3 GB) and the models (about 2 GB) on every cold start. Preferably create a read-only token and pass it as `SPACE_READ_TOKEN`. The Space folder was verified locally with its own `start.sh` (68/68 image checks, 12/12 edge cases); the Docker build itself runs on Hugging Face and was not run here.
 
+### Keeping the Mac-hosted link running by itself (macOS)
+```bash
+python3 deploy/mac/install.py              # installs two login jobs: the app (kept awake with caffeinate) and the tunnel
+python3 deploy/mac/install.py --uninstall  # stops and removes both
+tail -f ~/Library/Logs/shop-the-look/*.log
+```
+- Both jobs start at login and are restarted if they crash (tested: app back in about 10 s, tunnel back in about 85 s).
+- A quick tunnel gets a **new random address on every restart**. The tunnel job therefore publishes the current address to the `gh-pages` branch (`live.json`), and the stable page `.../live.html` redirects visitors there, or shows an offline page when the app does not answer. Use that stable link, not the trycloudflare address.
+- Limits: it only runs while you are logged in and the Mac is awake (closing the lid sleeps the Mac; `caffeinate` only stops idle sleep), the Mac must stay online, and each restart makes one small commit on `gh-pages` (the helper clone lives in `~/.shop-the-look/ghpages`). A permanent address needs a hosted server (see Hugging Face above, which needs PRO) or a Cloudflare account with a domain for a named tunnel.
+- When you rebuild the static preview, keep `live.json` and `live.html` on `gh-pages` (copy the new files over; do not delete the branch contents).
+
 ## 6. Static demo on GitHub Pages (preview only, no uploads)
 GitHub Pages cannot run the models, so the hosted demo is static: `python app/build_demo_site.py` records the live server's answers for the six sample photos and packages the UI with a small shim (`demo.js`) that serves them. It is published from the `gh-pages` branch. Rebuild and republish after any change to the ranking or the UI. It contains photos from the datasets, so take it down (Settings, Pages) if that is not acceptable.

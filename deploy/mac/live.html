@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shop the Look: live app</title>
+<link rel="icon" href="data:,">
+<style>
+  :root { color-scheme: light dark; }
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; font: 16px/1.5 system-ui, sans-serif; background: #ead9d0; color: #7a0000; }
+  main { max-width: 34rem; padding: 2rem 1.25rem; }
+  h1 { font-size: 2rem; letter-spacing: -.03em; margin: 0 0 .5rem; }
+  a { color: #c00; font-weight: 600; }
+  p { margin: .5rem 0; }
+  .muted { color: #7a4a4a; font-size: .95rem; }
+  @media (prefers-color-scheme: dark) { body { background: #1a0d0d; color: #ffb3b3; } a { color: #ff6b6b; } .muted { color: #c99; } }
+</style>
+</head>
+<body>
+<main>
+  <h1 id="title">Opening the live app...</h1>
+  <p id="msg">Checking that the app is online.</p>
+  <p class="muted" id="more" hidden>
+    The live app runs on its owner's computer, so it is only available while that computer is on.
+    You can still <a href="./">see the static preview</a> (recorded results for six sample photos) or read the
+    <a href="https://github.com/uplsiddharth-byte/Shop-the-Look-Visual-Product-Discovery">source and setup instructions</a>.
+  </p>
+</main>
+<script>
+(async () => {
+  const offline = (why) => {
+    document.getElementById("title").textContent = "The live app is offline right now";
+    document.getElementById("msg").textContent = why;
+    document.getElementById("more").hidden = false;
+  };
+  try {
+    const live = await (await fetch("live.json?t=" + Date.now(), { cache: "no-store" })).json();
+    // the health endpoint allows cross-origin reads, so we can require a real healthy answer: a dead tunnel (Cloudflare error page,
+    // no CORS header) or a down app makes this throw and we show the offline page instead of a broken one
+    const ctl = new AbortController(); const timer = setTimeout(() => ctl.abort(), 8000);
+    const res = await fetch(live.url + "/api/health?t=" + Date.now(), { cache: "no-store", signal: ctl.signal });
+    clearTimeout(timer);
+    if (!res.ok || (await res.json()).status !== "ok") throw new Error("unhealthy");
+    location.replace(live.url);
+  } catch (e) {
+    offline("It did not respond. The computer it runs on may be off or asleep, or it is restarting; try again in a minute.");
+  }
+})();
+</script>
+</body>
+</html>
