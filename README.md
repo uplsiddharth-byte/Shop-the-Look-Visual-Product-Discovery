@@ -18,7 +18,7 @@ Upload an outfit photo: the app detects each garment or accessory, matches it to
 Validation labels are loose (the paired product often only resembles the item in the scene), so these understate usefulness. Automated checks: 68 test images and 12 hostile-upload cases all pass, also from a clean CPU-only install (about 1.4 s per photo). Details and limitations are in the technical document.
 
 ## Run the demo from a fresh clone
-This repository holds code only. The search index and product images (`data/`) and the company's `dataset/` files are **not in git**, so a bare clone cannot start (the server exits with `Missing data in .../data`). Unpack the data bundle that comes with the submission first:
+This repository holds code only. The search index and product images (`data/`) and the company's `dataset/` files are **not in git**, so a bare clone cannot start (the server exits with `Missing data in .../data`). The bundle is shared by the author through a private download link on request (it is not published here because it contains the company's catalog images). Download it, put it in the repo root, then:
 ```bash
 uv venv --python 3.12 .venv && uv pip install --python .venv/bin/python -r requirements.txt
 tar -xf shop-the-look-data-core.tar        # creates data/ : provided catalog, index, sample scenes (about 0.7 GB)
