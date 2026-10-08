@@ -167,7 +167,7 @@ def info():
 
 @app.get("/api/samples")
 def samples():
-    return [f"/scenes/{f}" for f in sorted(os.listdir(f"{ROOT}/data/scenes")) if f.endswith(".jpg")][:12]  # data/scenes = the validation scenes
+    return [f"/scenes/{f}" for f in sorted(os.listdir(f"{ROOT}/data/scenes")) if f.endswith(".jpg") and not f.startswith(".")][:12]  # data/scenes = the validation scenes; skip macOS "._" junk files
 
 
 app.mount("/catalog", StaticFiles(directory=f"{ROOT}/data/catalog"), name="catalog")
