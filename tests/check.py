@@ -54,7 +54,13 @@ def verdict(name, d):
 
 
 fails = 0; n = 0; own_hits = [0, 0]
-for p in sorted(glob.glob(os.path.join(HERE, "img", "*.jpg"))):
+imgs = sorted(glob.glob(os.path.join(HERE, "img", "*.jpg")))
+if not imgs:
+    sys.exit("No test images in tests/img. Run `python tests/make_test_images.py` (needs the extended data bundle) "
+             "or unpack shop-the-look-test-images.tar in the repo root (see README, section Tests).")
+if len(imgs) < 68 and not FILTER:
+    print(f"note: {len(imgs)} of the 68 test images are present, so this is a partial run (see README, section Tests)\n")
+for p in imgs:
     name = os.path.basename(p)
     if FILTER not in name: continue
     try: d = search(p)
