@@ -19,6 +19,10 @@ Validation labels are loose (the paired product often only resembles the item in
 
 ## Run the demo from a fresh clone
 This repository holds code only. The search index and product images (`data/`) and the company's `dataset/` files are **not in git**, so a bare clone cannot start (the server exits with `Missing data in .../data`). Download the data bundle from Google Drive: [core, required (708 MiB)](https://drive.google.com/file/d/1ZURkBRv8Co3X5mW842BTus9X0ry4YfuT/view?usp=sharing) and [extended, optional (2.4 GiB)](https://drive.google.com/file/d/1a4SmDz1raLfyVQd8gOiHndmhdDTHDoc3/view?usp=sharing). Put the `.tar` files in the repo root, then:
+
+> **Download tip:** use a web browser, not `curl` or `wget`. For big files Google Drive shows a "can't scan for viruses" page first (click **Download anyway**); a script would save that web page under the `.tar` name. If `tar` says "not a tar archive" or the file is only a few KB, that is the cause. The core file should be 742,572,544 bytes and the extended one 2,599,345,664 bytes.
+
+**macOS / Linux**
 ```bash
 uv venv --python 3.12 .venv && uv pip install --python .venv/bin/python -r requirements.txt
 tar -xf shop-the-look-data-core.tar        # creates data/ : provided catalog, index, sample scenes (about 0.7 GB)
@@ -26,6 +30,18 @@ tar -xf shop-the-look-data-extended.tar    # optional: +44,072 extended products
 ./run.sh                                   # open http://localhost:8000 (HOST, PORT, DEVICE=cpu|cuda|mps optional)
 curl localhost:8000/api/health             # model load takes 30 to 60 s
 ```
+
+**Windows 10/11** (Command Prompt or PowerShell; `tar` is built in; install `uv` once with `pip install uv` or `winget install astral-sh.uv`)
+```bat
+uv venv --python 3.12 .venv
+uv pip install --python .venv\Scripts\python.exe -r requirements.txt
+tar -xf shop-the-look-data-core.tar
+tar -xf shop-the-look-data-extended.tar
+.\run.bat
+curl.exe localhost:8000/api/health
+```
+The second `tar` line (extended catalog) is optional. `run.bat` serves on http://localhost:8000; to change the port set it first (`set PORT=8001` in Command Prompt, `$env:PORT=8001` in PowerShell; `HOST` and `DEVICE=cpu|cuda` work the same way). The health check answers once the models have loaded (30 to 60 s). In PowerShell use `curl.exe`, not `curl`.
+The Windows steps use the same code and models as macOS (CPU by default, CUDA if you have an NVIDIA GPU and a CUDA build of PyTorch). They were written from the macOS-tested flow and have not been run on a Windows machine by the author.
 The first start downloads the two models (about 2 GB) from Hugging Face, so it needs internet once. `dataset/` is only needed to rebuild the index and run the evaluation scripts, not to run the app. Without the bundle, use the live link above or rebuild everything ("Rebuild from scratch", which needs `dataset/`).
 Deploying elsewhere: see `DEPLOY.md` (what to ship, memory, security notes, Docker).
 
