@@ -65,11 +65,15 @@ EXT=1 ../.venv/bin/python final_eval.py   # metrics with the extended index -> d
 The UI switch "Extended catalog" (or `?extended=false` on `/api/search`) turns it off.
 
 ## Tests (start the server first; set `API=localhost:8001` to target another server)
+The 68 test images are **not in the repository** (they are crops of third-party photos). Get them first:
+- **51 of them can be regenerated** from the extended data bundle: `.venv/bin/python tests/make_test_images.py` (Windows: `.venv\Scripts\python tests\make_test_images.py`). Verified: it reproduces the original files byte for byte.
+- **The other 17** (blur, crop, case_*, non-fashion scenes) were cut from screenshots and cannot be regenerated. They are in `shop-the-look-test-images.tar` (2.7 MB, from the author); unpack it in the repo root with `tar -xf shop-the-look-test-images.tar`. Without it `check.py` runs the 51 regenerated images only and says it is a partial run; with no images at all it exits with an error and these instructions.
 ```bash
 .venv/bin/python tests/check.py            # 68 images, expected result per group, exit 1 on any failure
 .venv/bin/python tests/edge_cases.py       # 12 hostile/unusual uploads and their required HTTP status
 .venv/bin/python tests/explain_dets.py tests/img/x.jpg   # why each detector box was kept or dropped
 ```
+On Windows use `.venv\Scripts\python` instead of `.venv/bin/python`, and set the server address with `set API=localhost:8001` (Command Prompt) or `$env:API="localhost:8001"` (PowerShell). The "own product found in top-5" figure (31/48) needs the extended bundle; with the core bundle only it reads 0/48, which is expected.
 
 ## Layout
 ```
