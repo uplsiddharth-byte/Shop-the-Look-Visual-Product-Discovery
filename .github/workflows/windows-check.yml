@@ -4,8 +4,6 @@ name: Windows check
 # Manual run only (it downloads about 0.7 GB of data and 1.3 GB of models and takes a few minutes).
 on:
   workflow_dispatch:
-  push:
-    branches: [windows-ci]
 
 jobs:
   windows:
