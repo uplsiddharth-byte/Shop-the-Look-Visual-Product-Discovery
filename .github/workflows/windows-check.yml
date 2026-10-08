@@ -49,8 +49,11 @@ jobs:
       - name: Search a real photo and open the UI
         run: |
           $scene = (Get-ChildItem data\scenes\*.jpg | Select-Object -First 1).FullName
-          curl.exe -s -F "file=@$scene" -o search.json http://127.0.0.1:8000/api/search
+          Write-Host "scene: $scene exists=$(Test-Path $scene) size=$((Get-Item $scene).Length)"
+          curl.exe -sS -m 300 -F "file=@$scene" -o search.json -w "HTTP %{http_code}`n" http://127.0.0.1:8000/api/search
+          Write-Host "curl exit code: $LASTEXITCODE"
           if ($LASTEXITCODE -ne 0) { exit 1 }
+          Get-Content search.json -TotalCount 1 | ForEach-Object { $_.Substring(0, [Math]::Min(300, $_.Length)) }
           .venv\Scripts\python.exe -c "import json; d = json.load(open('search.json', encoding='utf-8')); n = len(d['items']); print(n, 'items detected'); assert n > 0, d"
           if ($LASTEXITCODE -ne 0) { exit 1 }
           $r = Invoke-WebRequest http://127.0.0.1:8000/ -UseBasicParsing
