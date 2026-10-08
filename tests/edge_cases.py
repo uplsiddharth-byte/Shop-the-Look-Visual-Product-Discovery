@@ -8,6 +8,9 @@ import numpy as np
 
 HERE = os.path.dirname(__file__)
 tee = os.path.join(HERE, "img", "crop_tee.jpg")
+if not os.path.exists(tee):  # not in the repo: fall back to any scene photo from the data bundle
+    scenes = os.path.join(HERE, "..", "data", "scenes")
+    tee = os.path.join(scenes, sorted(f for f in os.listdir(scenes) if f.endswith(".jpg"))[0])
 d = tempfile.mkdtemp()
 def w(name, data): open(os.path.join(d, name), "wb").write(data)
 def img_bytes(im, fmt, **kw): b = io.BytesIO(); im.save(b, fmt, **kw); return b.getvalue()
@@ -30,11 +33,11 @@ bad = 0
 for name, (data, status, reason) in cases.items():
     w(name, data)
     out = subprocess.run(["curl", "-s", "-m", "120", "-o", os.path.join(d, "out.json"), "-w", "%{http_code}", "-F", f"file=@{os.path.join(d, name)}", API + "/api/search"], capture_output=True, text=True).stdout
-    body = open(os.path.join(d, "out.json")).read()
+    body = open(os.path.join(d, "out.json"), encoding="utf-8").read()
     got_reason = json.loads(body).get("reason") if out == "200" else None
     ok = out == str(status) and (reason is None or got_reason == reason)
     bad += not ok
     print(("PASS " if ok else "FAIL ") + name.ljust(22), out, got_reason or body[:60])
-alive = subprocess.run(["curl", "-s", "-o", "/dev/null", "-w", "%{http_code}", API + "/api/info"], capture_output=True, text=True).stdout
+alive = subprocess.run(["curl", "-s", "-o", os.devnull, "-w", "%{http_code}", API + "/api/info"], capture_output=True, text=True).stdout
 print(f"\n{len(cases) - bad}/{len(cases)} passed; server still alive: {alive == '200'}")
 sys.exit(1 if bad or alive != "200" else 0)

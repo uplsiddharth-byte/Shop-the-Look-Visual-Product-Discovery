@@ -73,7 +73,7 @@ The 68 test images are **not in the repository** (they are crops of third-party 
 .venv/bin/python tests/edge_cases.py       # 12 hostile/unusual uploads and their required HTTP status
 .venv/bin/python tests/explain_dets.py tests/img/x.jpg   # why each detector box was kept or dropped
 ```
-On Windows use `.venv\Scripts\python` instead of `.venv/bin/python`, and set the server address with `set API=localhost:8001` (Command Prompt) or `$env:API="localhost:8001"` (PowerShell). The "own product found in top-5" figure (31/48) needs the extended bundle; with the core bundle only it reads 0/48, which is expected.
+`edge_cases.py` needs none of these images: it falls back to a scene photo from the data bundle. On Windows use `.venv\Scripts\python` instead of `.venv/bin/python`, and set the server address with `set API=localhost:8001` (Command Prompt) or `$env:API="localhost:8001"` (PowerShell). The "own product found in top-5" figure (31/48) needs the extended bundle; with the core bundle only it reads 0/48, which is expected.
 
 ## Layout
 ```
