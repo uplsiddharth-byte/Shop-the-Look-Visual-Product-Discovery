@@ -1,10 +1,12 @@
 # Shop the Look
 
-Upload an outfit photo. The app detects each garment/accessory, matches it to the product catalog, says whether the exact product exists, and explains every recommendation.
+Upload an outfit photo: the app detects each garment or accessory, matches it to a product catalog, says whether the exact product exists, and explains every recommendation. Pretrained models only (OWLv2 detector, Marqo-FashionSigLIP embeddings); no training.
 
-Upload an outfit photo: the app detects each garment or accessory, matches it to a product catalog, says whether the exact product exists, and explains every recommendation. Pretrained models only (OWLv2 detector, Marqo-FashionSigLIP embeddings); no training. Full write-up: [`docs/Shop_the_Look_Technical_Document.pdf`](docs/Shop_the_Look_Technical_Document.pdf).
+**[Try the live demo](https://uplsiddharth-byte.github.io/Shop-the-Look-Visual-Product-Discovery/)** (static: the six sample photos use results recorded from the real app; your own photos need the backend, see "Run the demo" below). Full write-up: [technical document (PDF)](docs/Shop_the_Look_Technical_Document.pdf).
 
-![Results](docs/img/ui_results.png)
+| Upload screen | Results |
+|---|---|
+| ![Upload screen](docs/img/screen-upload.png) | ![Results for a red dress and a yellow handbag](docs/img/screen-results.png) |
 
 ## Results (288 validation pairs; true product within the top K shown for any detected item)
 | Catalog searched | R@1 | R@5 | R@10 | R@100 |
@@ -57,7 +59,7 @@ docs/       technical document (HTML source + PDF)
 data/       NOT in git: images, embeddings, caches (rebuild with the steps above, or see DEPLOY.md)
 dataset/    NOT in git: the catalog and validation .jsonl files provided with the assignment
 ```
-Key files: `app/pipeline.py` (detect, relabel, verify, declutter), `app/explain.py` (tags, families, explanations), `app/server.py` (API), `data/config.json` (tuned weights), `DEPLOY.md` (deployment), `CLAUDE.md` (project decisions and pitfalls).
+Key files: `app/pipeline.py` (detect, relabel, verify, declutter), `app/explain.py` (tags, families, explanations), `app/server.py` (API), `data/config.json` (tuned weights), `DEPLOY.md` (deployment), `app/build_demo_site.py` (builds the static demo).
 
 ## Third-party material
 Models: OWLv2 (`google/owlv2-base-patch16-ensemble`) and Marqo-FashionSigLIP, downloaded from Hugging Face at first start. Fonts and icons in `web/vendor`: Geist (SIL OFL) and Phosphor Icons (MIT). The optional extended catalog is the public Fashion Product Images dataset (Hugging Face mirror `benitomartin/fashion-product-images-small-384x512`; license not stated on the mirror). Catalog and validation data come from the assignment and are not redistributed here.

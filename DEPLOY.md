@@ -37,7 +37,7 @@ After the first successful start you can set `HF_HUB_OFFLINE=1` so it never cont
 - Uploads: max 10 MB and 50 megapixels, enforced before decoding; bad files get a clean 400/413.
 - Run **one worker** (`uvicorn` default). More workers each load the models (2 GB each) and gain nothing on one GPU.
 - UI files are served with `Cache-Control: no-cache` so redeploys are picked up immediately.
-- Settings and thresholds live in `data/config.json` (tuned on the validation set; see `docs/` and `CLAUDE.md`). Changing detector prompts or weights means re-running `app/final_eval.py`.
+- Settings and thresholds live in `data/config.json` (tuned on the validation set; see `docs/`). Changing detector prompts or weights means re-running `app/final_eval.py`.
 - The extended catalog is from the public Fashion Product Images dataset (Hugging Face mirror `benitomartin/fashion-product-images-small-384x512`). Its license is not stated on the mirror: check before commercial use.
 
 ## 4. Docker (untested here)
@@ -46,3 +46,6 @@ docker build -t shop-the-look .
 docker run -p 8000:8000 -v "$PWD/data:/app/data" -v hf-cache:/root/.cache/huggingface shop-the-look
 ```
 The image contains code and dependencies only; mount `data/` as a volume. The container uses CPU.
+
+## 5. Static demo on GitHub Pages
+GitHub Pages cannot run the models, so the hosted demo is static: `python app/build_demo_site.py` records the live server's answers for the six sample photos and packages the UI with a small shim (`demo.js`) that serves them. It is published from the `gh-pages` branch. Rebuild and republish after any change to the ranking or the UI. It contains photos from the datasets, so take it down (Settings, Pages) if that is not acceptable.

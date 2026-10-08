@@ -14,7 +14,7 @@ pre { font: 8.6pt/1.35 Menlo, monospace; background: #f4f4f5; padding: 6pt 8pt; 
 </style></head><body>
 
 <h1>Shop the Look: Visual Product Discovery</h1>
-<div class="sub">Technical document. Source code, UI and tests are in the GitHub repository; every number below comes from <code>app/final_eval.py</code> (validation), <code>tests/check.py</code> and <code>tests/edge_cases.py</code> run against the shipped server.</div>
+<div class="sub">Technical document. Source code, UI and tests are in the GitHub repository (live static demo: uplsiddharth-byte.github.io/Shop-the-Look-Visual-Product-Discovery); every number below comes from <code>app/final_eval.py</code> (validation), <code>tests/check.py</code> and <code>tests/edge_cases.py</code> run against the shipped server.</div>
 
 <h2>1. Overall approach</h2>
 <p>Given a scene photo, the system (1) detects each fashion item, (2) turns every item crop into an embedding, (3) searches the catalog by cosine similarity (the provided catalog, plus an optional extended catalog), (4) decides whether a result is an exact match or only a similar product, and (5) explains each recommendation from attributes (category, color, pattern, material, style). Nothing is trained from scratch: pretrained fashion vision-language models are used zero-shot, and the validation file is used to <em>measure and calibrate</em> the system.</p>
@@ -24,7 +24,7 @@ item -> cosine search over 28,094 provided + 44,072 optional extended products
      -> rank = cosine + family + colour - hubness penalty; hide weak and duplicate matches
      -> exact-vs-similar threshold -> zero-shot attribute tags -> explanation sentence
 FastAPI /api/search  ->  web UI (boxes over the scene, one card per item beside the photo, Extended-catalog switch, three colour themes)</pre>
-<figure><img src="img/ui_upload.png" alt="Upload screen"><img src="img/ui_results.png" alt="Results screen"></figure>
+<figure><img src="img/screen-upload.png" alt="Upload screen"><img src="img/screen-results.png" alt="Results screen"></figure>
 <p class="cap"><b>Figure 1.</b> The demo UI. Left: upload screen with sample photos. Right: results, with the detected items outlined on the photo and one card per item (large top match, match percentage, explanation, and a strip of the other matches).</p>
 
 

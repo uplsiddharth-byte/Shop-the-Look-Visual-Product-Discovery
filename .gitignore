@@ -12,3 +12,6 @@ assets/
 # test images are crops of third-party product photos: regenerate with tests/make_test_images.py
 tests/img/
 tests/edge/
+
+# built static demo (published from the gh-pages branch)
+site/
