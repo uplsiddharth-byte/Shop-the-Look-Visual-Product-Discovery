@@ -1,0 +1,14 @@
+# local environment and caches
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+# data and inputs that are large or not ours to redistribute
+data/
+dataset/
+# private working material
+assignment/
+assets/
+# test images are crops of third-party product photos: regenerate with tests/make_test_images.py
+tests/img/
+tests/edge/

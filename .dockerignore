@@ -1,0 +1,8 @@
+.venv
+data
+dataset
+tests
+docs
+ui
+*.png
+__pycache__
