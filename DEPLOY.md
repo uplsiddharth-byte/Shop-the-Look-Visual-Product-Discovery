@@ -69,6 +69,7 @@ tail -f ~/Library/Logs/shop-the-look/*.log
 ```
 - Both jobs start at login and are restarted if they crash (tested: app back in about 10 s, tunnel back in about 85 s).
 - A quick tunnel gets a **new random address on every restart**. The tunnel job therefore publishes the current address to the `gh-pages` branch (`live.json`), and the stable page `.../live.html` redirects visitors there, or shows an offline page when the app does not answer. Use that stable link, not the trycloudflare address.
+- After a restart the stable link can say "offline" for one to three minutes: GitHub Pages needs that long to serve the new address (an "errored" Pages build right after a restart is a harmless race when two pushes land seconds apart).
 - Limits: it only runs while you are logged in and the Mac is awake (closing the lid sleeps the Mac; `caffeinate` only stops idle sleep), the Mac must stay online, and each restart makes one small commit on `gh-pages` (the helper clone lives in `~/.shop-the-look/ghpages`). A permanent address needs a hosted server (see Hugging Face above, which needs PRO) or a Cloudflare account with a domain for a named tunnel.
 - When you rebuild the static preview, keep `live.json` and `live.html` on `gh-pages` (copy the new files over; do not delete the branch contents).
 
