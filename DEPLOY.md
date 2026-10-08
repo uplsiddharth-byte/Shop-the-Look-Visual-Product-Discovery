@@ -19,7 +19,7 @@ One Python process (FastAPI + the models) that also serves the web UI and the pr
 | `data/scenes/` | 12 MB | only for the sample thumbnails |
 | `web/` | 0.3 MB | the UI |
 
-`shop-the-look-data-core.tar` holds the provided-catalog index files, `catalog/` and `scenes/` (about 0.7 GB) and `shop-the-look-data-extended.tar` holds the extended index and images (about 2.4 GB). Both unpack into `data/` from the repo root (`tar -xf`).
+`shop-the-look-data-core.tar` holds the provided-catalog index files, `catalog/` and `scenes/` (about 0.7 GB) and `shop-the-look-data-extended.tar` holds the extended index and images (about 2.4 GB). Both unpack into `data/` from the repo root (`tar -xf <file> --exclude "._*"`; the exclude skips the macOS metadata files the archives contain).
 
 Not needed at runtime: `dataset/`, `tests/`, `docs/`, `app/tune_*.py`, `data/dets_raw.pkl`, `data/*.log`.
 

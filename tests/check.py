@@ -13,7 +13,7 @@ HALF = {"Tshirts": {"tops"}, "Shirts": {"tops"}, "Trousers": {"bottoms"}, "Track
 
 
 def search(path):
-    out = subprocess.run(["curl", "-s", "-m", "60", "-F", f"file=@{path}", API + "/api/search?extended=true"], capture_output=True, text=True).stdout
+    out = subprocess.run(["curl", "-s", "-m", "60", "-F", f"file=@{path}", API + "/api/search?extended=true"], capture_output=True, text=True, encoding="utf-8").stdout
     return json.loads(out)
 
 

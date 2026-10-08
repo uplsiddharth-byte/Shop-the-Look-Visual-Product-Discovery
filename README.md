@@ -25,8 +25,8 @@ This repository holds code only. The search index and product images (`data/`) a
 **macOS / Linux**
 ```bash
 uv venv --python 3.12 .venv && uv pip install --python .venv/bin/python -r requirements.txt
-tar -xf shop-the-look-data-core.tar        # creates data/ : provided catalog, index, sample scenes (about 0.7 GB)
-tar -xf shop-the-look-data-extended.tar    # optional: +44,072 extended products (about 2.4 GB)
+tar -xf shop-the-look-data-core.tar --exclude "._*"        # creates data/ : provided catalog, index, sample scenes (about 0.7 GB)
+tar -xf shop-the-look-data-extended.tar --exclude "._*"    # optional: +44,072 extended products (about 2.4 GB)
 ./run.sh                                   # open http://localhost:8000 (HOST, PORT, DEVICE=cpu|cuda|mps optional)
 curl localhost:8000/api/health             # model load takes 30 to 60 s
 ```
@@ -35,12 +35,12 @@ curl localhost:8000/api/health             # model load takes 30 to 60 s
 ```bat
 uv venv --python 3.12 .venv
 uv pip install --python .venv\Scripts\python.exe -r requirements.txt
-tar -xf shop-the-look-data-core.tar
-tar -xf shop-the-look-data-extended.tar
+tar -xf shop-the-look-data-core.tar --exclude "._*"
+tar -xf shop-the-look-data-extended.tar --exclude "._*"
 .\run.bat
 curl.exe localhost:8000/api/health
 ```
-The second `tar` line (extended catalog) is optional. `run.bat` serves on http://localhost:8000; to change the port set it first (`set PORT=8001` in Command Prompt, `$env:PORT=8001` in PowerShell; `HOST` and `DEVICE=cpu|cuda` work the same way). The health check answers once the models have loaded (30 to 60 s). In PowerShell use `curl.exe`, not `curl`.
+The second `tar` line (extended catalog) is optional. `--exclude "._*"` skips the macOS metadata files (`._name`) that the bundles contain (about 28,000 of them); they are harmless on a Mac but would be real junk files on Windows and Linux. `run.bat` serves on http://localhost:8000; to change the port set it first (`set PORT=8001` in Command Prompt, `$env:PORT=8001` in PowerShell; `HOST` and `DEVICE=cpu|cuda` work the same way). The health check answers once the models have loaded (30 to 60 s). In PowerShell use `curl.exe`, not `curl`.
 The Windows steps use the same code and models as macOS (CPU by default, CUDA if you have an NVIDIA GPU and a CUDA build of PyTorch). They were written from the macOS-tested flow and have not been run on a Windows machine by the author.
 The first start downloads the two models (about 2 GB) from Hugging Face, so it needs internet once. `dataset/` is only needed to rebuild the index and run the evaluation scripts, not to run the app. Without the bundle, use the live link above or rebuild everything ("Rebuild from scratch", which needs `dataset/`).
 Deploying elsewhere: see `DEPLOY.md` (what to ship, memory, security notes, Docker).
@@ -67,13 +67,13 @@ The UI switch "Extended catalog" (or `?extended=false` on `/api/search`) turns i
 ## Tests (start the server first; set `API=localhost:8001` to target another server)
 The 68 test images are **not in the repository** (they are crops of third-party photos). Get them first:
 - **51 of them can be regenerated** from the extended data bundle: `.venv/bin/python tests/make_test_images.py` (Windows: `.venv\Scripts\python tests\make_test_images.py`). Verified: it reproduces the original files byte for byte.
-- **The other 17** (blur, crop, case_*, non-fashion scenes) were cut from screenshots and cannot be regenerated. They are in `shop-the-look-test-images.tar` (2.7 MB, from the author); unpack it in the repo root with `tar -xf shop-the-look-test-images.tar`. Without it `check.py` runs the 51 regenerated images only and says it is a partial run; with no images at all it exits with an error and these instructions.
+- **The other 17** (blur, crop, case_*, non-fashion scenes) were cut from screenshots and cannot be regenerated. They are in `shop-the-look-test-images.tar` (2.7 MB, from the author); unpack it in the repo root with `tar -xf shop-the-look-test-images.tar --exclude "._*"`. Without it `check.py` runs the 51 regenerated images only and says it is a partial run; with no images at all it exits with an error and these instructions.
 ```bash
 .venv/bin/python tests/check.py            # 68 images, expected result per group, exit 1 on any failure
 .venv/bin/python tests/edge_cases.py       # 12 hostile/unusual uploads and their required HTTP status
 .venv/bin/python tests/explain_dets.py tests/img/x.jpg   # why each detector box was kept or dropped
 ```
-On Windows use `.venv\Scripts\python` instead of `.venv/bin/python`, and set the server address with `set API=localhost:8001` (Command Prompt) or `$env:API="localhost:8001"` (PowerShell). The "own product found in top-5" figure (31/48) needs the extended bundle; with the core bundle only it reads 0/48, which is expected.
+`edge_cases.py` needs none of these images: it falls back to a scene photo from the data bundle. On Windows use `.venv\Scripts\python` instead of `.venv/bin/python`, and set the server address with `set API=localhost:8001` (Command Prompt) or `$env:API="localhost:8001"` (PowerShell). The "own product found in top-5" figure (31/48) needs the extended bundle; with the core bundle only it reads 0/48, which is expected.
 
 ## Layout
 ```
