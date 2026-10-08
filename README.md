@@ -2,7 +2,7 @@
 
 Upload an outfit photo: the app detects each garment or accessory, matches it to a product catalog, says whether the exact product exists, and explains every recommendation. Pretrained models only (OWLv2 detector, Marqo-FashionSigLIP embeddings); no training.
 
-**[Try the live demo](https://uplsiddharth-byte.github.io/Shop-the-Look-Visual-Product-Discovery/)** (static: the six sample photos use results recorded from the real app; your own photos need the backend, see "Run the demo" below). Full write-up: [technical document (PDF)](docs/Shop_the_Look_Technical_Document.pdf).
+**[Static preview](https://uplsiddharth-byte.github.io/Shop-the-Look-Visual-Product-Discovery/)** (GitHub Pages cannot run the models, so it only replays the six sample photos). To run the real app with uploads see "Run the demo" below; to put it online see [DEPLOY.md](DEPLOY.md) (`deploy/publish_to_hf.py` publishes it to a free Hugging Face Space). Full write-up: [technical document (PDF)](docs/Shop_the_Look_Technical_Document.pdf).
 
 | Upload screen | Results |
 |---|---|

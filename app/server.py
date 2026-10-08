@@ -1,7 +1,7 @@
 """FastAPI backend: POST /api/search (image) -> detected items + top catalog matches with explanations."""
-import asyncio, io, json, os, time, numpy as np
+import asyncio, collections, io, json, os, time, numpy as np
 from PIL import Image, ImageOps, UnidentifiedImageError
-from fastapi import FastAPI, File, HTTPException, Query, UploadFile
+from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
 from fastapi.responses import Response
 from fastapi.staticfiles import StaticFiles
 from pipeline import Pipeline, analyze, ROOT
@@ -23,6 +23,9 @@ BONUS = CFG.get("family_bonus", 0.1)
 TOP_K = 5
 MAX_BYTES = 10 * 1024 * 1024
 MAX_PIXELS = 50_000_000  # reject absurd dimensions before decoding (decompression-bomb protection)
+RATE_PER_MIN = int(os.environ.get("RATE_PER_MIN", "20"))  # searches per visitor per minute (loopback/local requests are exempt)
+MAX_WAITING = int(os.environ.get("MAX_WAITING", "6"))      # requests allowed to queue for the model before we answer 503
+_hits, _waiting = collections.defaultdict(collections.deque), 0
 LOCK = asyncio.Lock()    # the models are not safe to run from two requests at once on one device
 
 COLOR_BONUS = CFG.get("color_bonus", 0.0)  # tuned on validation (tune_rank.py)
@@ -57,7 +60,22 @@ async def revalidate_ui(request, call_next):
 
 
 @app.post("/api/search")
-async def search(file: UploadFile = File(...), extended: bool = Query(True)):
+async def search(request: Request, file: UploadFile = File(...), extended: bool = Query(True)):
+    global _waiting
+    # visitor = the address the proxy/tunnel reports; requests straight from this machine (tests, local use) are not limited
+    ip = (request.headers.get("cf-connecting-ip") or request.headers.get("x-forwarded-for", "").split(",")[0].strip() or request.client.host)
+    if ip not in ("127.0.0.1", "::1", "localhost"):
+        now, q = time.time(), _hits[ip]
+        while q and now - q[0] > 60:
+            q.popleft()
+        if len(q) >= RATE_PER_MIN:
+            raise HTTPException(429, f"Too many requests: please wait a moment (limit {RATE_PER_MIN} photos per minute).")
+        q.append(now)
+        if len(_hits) > 5000:  # forget visitors that have been quiet for a minute
+            for k in [k for k, v in _hits.items() if not v or now - v[-1] > 60]:
+                _hits.pop(k, None)
+    if _waiting >= MAX_WAITING:
+        raise HTTPException(503, "The server is busy with other photos: please try again in a few seconds.")
     raw = await file.read(MAX_BYTES + 1)  # never buffer more than the limit, however large the upload
     if len(raw) > MAX_BYTES:
         raise HTTPException(413, "Image too large (max 10 MB)")
@@ -74,8 +92,12 @@ async def search(file: UploadFile = File(...), extended: bool = Query(True)):
     except (UnidentifiedImageError, OSError, ValueError):
         raise HTTPException(400, "That file isn't a readable image")
     img.thumbnail((1024, 1024))
-    async with LOCK:
-        return await asyncio.get_running_loop().run_in_executor(None, _search, img, extended)
+    _waiting += 1
+    try:
+        async with LOCK:
+            return await asyncio.get_running_loop().run_in_executor(None, _search, img, extended)
+    finally:
+        _waiting -= 1
 
 
 def _search(img, extended):

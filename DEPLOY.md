@@ -33,7 +33,7 @@ The server needs 30 to 60 s to load models before it answers. If `data/` is inco
 After the first successful start you can set `HF_HUB_OFFLINE=1` so it never contacts Hugging Face again.
 
 ## 3. Production notes
-- **No authentication and no rate limiting.** Put it behind a reverse proxy (nginx, Caddy, a cloud load balancer) that adds HTTPS, auth and rate limits if it is public.
+- **No authentication.** There is a built-in limit of `RATE_PER_MIN` (default 20) photos per visitor per minute (visitors are identified by the proxy's `CF-Connecting-IP` / `X-Forwarded-For`; requests from the machine itself are exempt) and at most `MAX_WAITING` (default 6) queued requests, after which the server answers 429 or 503. For a public site still put it behind a reverse proxy that adds HTTPS and, if needed, auth.
 - Uploads: max 10 MB and 50 megapixels, enforced before decoding; bad files get a clean 400/413.
 - Run **one worker** (`uvicorn` default). More workers each load the models (2 GB each) and gain nothing on one GPU.
 - UI files are served with `Cache-Control: no-cache` so redeploys are picked up immediately.
@@ -47,5 +47,19 @@ docker run -p 8000:8000 -v "$PWD/data:/app/data" -v hf-cache:/root/.cache/huggin
 ```
 The image contains code and dependencies only; mount `data/` as a volume. The container uses CPU.
 
-## 5. Static demo on GitHub Pages
+## 5. Putting the real app online (uploads work)
+GitHub Pages cannot run the models, so a live app needs a server. Two ways, both tested here:
+- **Quick public link from your own machine** (works while the machine is on, awake and the server is running; the link changes each run; the server on your machine becomes reachable from the internet):
+  ```bash
+  ./run.sh &                                              # the app on localhost:8000
+  cloudflared tunnel --url http://localhost:8000          # prints https://<random>.trycloudflare.com  (brew install cloudflared)
+  ```
+- **Permanent, free: a Hugging Face Space** (Docker, free CPU, 16 GB RAM; about 5 to 15 s per photo; sleeps after 2 idle days and wakes in a few minutes). One command after `hf auth login` (a free account and a Write token):
+  ```bash
+  python deploy/publish_to_hf.py --dry-run     # what would be uploaded (no network)
+  python deploy/publish_to_hf.py               # uploads the data to a PRIVATE dataset repo, creates the Space, waits for it to start
+  ```
+  The Space downloads the data (about 3 GB) and the models (about 2 GB) on every cold start. Preferably create a read-only token and pass it as `SPACE_READ_TOKEN`. The Space folder was verified locally with its own `start.sh` (68/68 image checks, 12/12 edge cases); the Docker build itself runs on Hugging Face and was not run here.
+
+## 6. Static demo on GitHub Pages (preview only, no uploads)
 GitHub Pages cannot run the models, so the hosted demo is static: `python app/build_demo_site.py` records the live server's answers for the six sample photos and packages the UI with a small shim (`demo.js`) that serves them. It is published from the `gh-pages` branch. Rebuild and republish after any change to the ranking or the UI. It contains photos from the datasets, so take it down (Settings, Pages) if that is not acceptable.
