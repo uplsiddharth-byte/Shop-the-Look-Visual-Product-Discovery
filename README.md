@@ -67,7 +67,7 @@ The UI switch "Extended catalog" (or `?extended=false` on `/api/search`) turns i
 ## Tests (start the server first; set `API=localhost:8001` to target another server)
 The 68 test images are **not in the repository** (they are crops of third-party photos). Get them first:
 - **51 of them can be regenerated** from the extended data bundle: `.venv/bin/python tests/make_test_images.py` (Windows: `.venv\Scripts\python tests\make_test_images.py`). Verified: it reproduces the original files byte for byte.
-- **The other 17** (blur, crop, case_*, non-fashion scenes) were cut from screenshots and cannot be regenerated. They are in `shop-the-look-test-images.tar` (2.7 MB, from the author); unpack it in the repo root with `tar -xf shop-the-look-test-images.tar --exclude "._*"`. Without it `check.py` runs the 51 regenerated images only and says it is a partial run; with no images at all it exits with an error and these instructions.
+- **The other 17** (blur, crop, case_*, non-fashion scenes) were cut from screenshots and cannot be regenerated. They are in [`shop-the-look-test-images.tar` (2.7 MB, Google Drive)](https://drive.google.com/file/d/1CbKNg1RJZD7y4jQyA-iTxalgV-Ly6kWN/view?usp=sharing); unpack it in the repo root with `tar -xf shop-the-look-test-images.tar --exclude "._*"`. Without it `check.py` runs the 51 regenerated images only and says it is a partial run; with no images at all it exits with an error and these instructions.
 ```bash
 .venv/bin/python tests/check.py            # 68 images, expected result per group, exit 1 on any failure
 .venv/bin/python tests/edge_cases.py       # 12 hostile/unusual uploads and their required HTTP status
